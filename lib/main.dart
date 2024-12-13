@@ -5,7 +5,7 @@ import 'package:todo_with_shared_preferences/features/todo/presentation/expense_
 import 'package:todo_with_shared_preferences/features/todo/presentation/provider/expense_provider.dart';
 import 'package:todo_with_shared_preferences/general/di/injection.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependancy();
   runApp(const MyApp());
@@ -18,7 +18,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_)=> ExpenseProvider(iExpenseFacade: sl<IExpenseFacade>()))
+        ChangeNotifierProvider(
+            create: (_) =>
+                ExpenseProvider(iExpenseFacade: sl<IExpenseFacade>()))
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

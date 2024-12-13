@@ -11,6 +11,8 @@ class ExpenseProvider with ChangeNotifier {
   List<ExpenseModel> expenseList = [];
   bool isAmountType = false;
 
+  num totalAmount = 0;
+
   final amountController = TextEditingController();
   final titleController = TextEditingController();
 
@@ -22,65 +24,41 @@ class ExpenseProvider with ChangeNotifier {
         log(failure.toString());
       },
       (success) {
-        expenseList.insert(0, success);
+        expenseList.add(success);
+        // addLocally(expense);
         notifyListeners();
       },
     );
-    // try {
-    //   expenseList.add(expense);
-    //   log('add expenses succesfully');
-    //   log(expense.amountType.toString());
-    //   notifyListeners();
-    //   await saveExpenses();
-    // } catch (e) {
-    //   log(e.toString());
-    // }
   }
 
-  Future<void> saveExpenses() async {
-    // final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    final result = await iExpenseFacade.saveExpenses();
+  Future<void> getExpenses() async {
+    final result = await iExpenseFacade.getExpenses();
 
     result.fold(
       (failure) {
-        log(failure.toString());
+        log(failure.errorMessage);
       },
       (success) {
-        expenseList.addAll(success);
+        expenseList = success;
+
+        calculateAmout();
+        notifyListeners();
+
+        log(totalAmount.toString(), name: 'totalAmount');
       },
     );
-
-    // try {
-    //   List<String> saveExpense =
-    //       expenseList.map((exp) => json.encode(exp.toMap())).toList();
-
-    //   await prefs.setStringList('expenses', saveExpense);
-    //   notifyListeners();
-    //   log('save expenses');
-    // } catch (e) {
-    //   log(e.toString());
-    // }
   }
 
-  Future<void> loadExpenses() async {
-    final result = await iExpenseFacade.loadExpenses();
-    result.fold(
-      (failure) {
-        log(failure.toString());
-      },
-      (success) {
-        expenseList.addAll(expenseList);
-      },
-    );
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // List<String>? expense = prefs.getStringList('expenses');
+  void calculateAmout() {
+    for (var element in expenseList) {
+      if (element.amountType) {
+        totalAmount = totalAmount + element.amount;
+      } else {
+        totalAmount = totalAmount - element.amount;
+      }
+    }
 
-    // if (expense != null) {
-    //   expenseList =
-    //       expense.map((exp) => ExpenseModel.fromMap(json.decode(exp))).toList();
-    // }
-    // notifyListeners();
+    notifyListeners();
   }
 
   void toggle(bool value) {
@@ -95,6 +73,22 @@ class ExpenseProvider with ChangeNotifier {
 
   void addLocally(ExpenseModel expense) {
     expenseList.insert(0, expense);
+    calculateAmout();
     notifyListeners();
+  }
+
+  Future<void> deleteExpense(String expenseId) async {
+    final result = await iExpenseFacade.deleteExpenses(expenseId);
+
+    result.fold(
+      (failure) {
+        log(failure.toString());
+      },
+      (success) {
+        expenseList.removeWhere((expense) => expense.id == expenseId);
+        calculateAmout();
+        notifyListeners();
+      },
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_with_shared_preferences/features/todo/data/model/expense_model.dart';
 import 'package:todo_with_shared_preferences/features/todo/presentation/provider/expense_provider.dart';
@@ -12,35 +13,77 @@ class ExpensePage extends StatefulWidget {
 
 class _ExpensePageState extends State<ExpensePage> {
   @override
+  void initState() {
+    super.initState();
+    final expenseProvider =
+        Provider.of<ExpenseProvider>(context, listen: false);
+    expenseProvider.getExpenses();
+    // expenseProvider.calculateAmout();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final expenseProvider = Provider.of<ExpenseProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Expenses'),
       ),
-      body: Consumer<ExpenseProvider>(
-        builder: (context, expProvider, child) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: expProvider.expenseList.length,
-              itemBuilder: (context, index) {
-                final exp = expProvider.expenseList[index];
-                return Card.outlined(
-                  elevation: 5,
-                  child: ListTile(
-                    title: Text(
-                      exp.title,
-                      style: const TextStyle(fontSize: 20, color: Colors.black),
-                    ),
-                    subtitle: Text(exp.amount.toString()),
-                    trailing: Text(exp.amountType ? 'Credit' : 'Debit'),
+      body: Column(
+        children: [
+          Card(
+            elevation: 2,
+            child: ListTile(
+              title: const Text(
+                "Total Amount",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              trailing: Text(
+                expenseProvider.totalAmount.toStringAsFixed(2),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: expenseProvider.totalAmount >= 0
+                      ? Colors.green
+                      : Colors.red,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Consumer<ExpenseProvider>(
+              builder: (context, expProvider, child) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                    itemCount: expProvider.expenseList.length,
+                    itemBuilder: (context, index) {
+                      final exp = expProvider.expenseList[index];
+                      return Card.outlined(
+                        elevation: 5,
+                        child: ListTile(
+                            title: Text(
+                              exp.title,
+                              style: const TextStyle(
+                                  fontSize: 20, color: Colors.black),
+                            ),
+                            subtitle: Text(
+                              exp.amount.toString(),
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            trailing: Text(
+                              exp.amountType ? 'Credit' : 'Debit',
+                              style: TextStyle(
+                                  color: exp.amountType
+                                      ? Colors.green
+                                      : Colors.red),
+                            )),
+                      );
+                    },
                   ),
                 );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -65,6 +108,7 @@ class _ExpensePageState extends State<ExpensePage> {
                     TextField(
                       controller: expenseProvider.amountController,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         labelText: "Amount",
                         border: OutlineInputBorder(

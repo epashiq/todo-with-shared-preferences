@@ -7,12 +7,12 @@ abstract class IExpenseFacade{
     throw UnimplementedError('error');
   }
 
-  Future<Either<MainFailures,List<ExpenseModel>>> saveExpenses()async{
+  Future<Either<MainFailures,List<ExpenseModel>>> getExpenses()async{
     throw UnimplementedError('error');
   }
 
-  Future<Either<MainFailures,List<ExpenseModel>>> loadExpenses()async{
-    throw UnimplementedError();
+  Future<Either<MainFailures,bool>> deleteExpenses(String expenseId)async{
+    throw UnimplementedError('error');
   }
-
+ 
 }

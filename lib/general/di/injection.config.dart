@@ -13,7 +13,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../features/todo/data/iexpense_facade_.dart' as _i501;
-import '../../features/todo/repo/iexpense_facade_impl.dart' as _i239;
+import '../../features/todo/repo/iexpense_impl.dart' as _i239;
 import 'injectable_module.dart' as _i109;
 
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -32,7 +32,7 @@ Future<_i174.GetIt> init(
     () => injectableModule.prefs,
     preResolve: true,
   );
-  gh.lazySingleton<_i501.IExpenseFacade>(() => _i239.IexpenseFacadeImpl());
+  gh.lazySingleton<_i501.IExpenseFacade>(() => _i239.IexpenseImpl());
   return getIt;
 }
 
